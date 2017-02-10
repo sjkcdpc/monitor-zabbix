@@ -2,6 +2,7 @@
 import sys
 import os
 import MySQLdb
+import MySQLdb.cursors
 import time
 class GetMysqlStatus(object):
     def __init__(self,port,action,filename):
@@ -9,11 +10,33 @@ class GetMysqlStatus(object):
 	self._action=action
 	self._filename=filename
     def getstatus(self):
-        conn=MySQLdb.connect(host='localhost',user="root",passwd="",db="mysql",port=int(self._port))
+	conn=MySQLdb.connect(host='localhost',
+			     user="zabbix",
+			     passwd="a0KChuME4WREISd0f$",
+		  	     db="",
+                         port=int(self._port),
+			     unix_socket='/tmp/mysql%s.sock' % self._port)
         cur=conn.cursor()
         cur.execute('show global status;')
         results=cur.fetchall()
 	return results
+        cur.close
+    def GetSlave_status(self):
+        conn=MySQLdb.connect(host='localhost',
+				user="zabbix",
+				passwd="a0KChuME4WREISd0f$",
+				db="",
+				port=int(self._port),
+				cursorclass = MySQLdb.cursors.DictCursor,
+				unix_socket='/tmp/mysql%s.sock' % self._port)
+        cur=conn.cursor()
+        cur.execute('show slave status;')
+        results=cur.fetchall()
+        if results == ():
+            return 'Null'
+	else:
+	    return results[0]
+	cur.close
     def check_file(self):
         if not os.path.exists(self._filename):
 	    print 0 
@@ -54,10 +77,38 @@ class GetMysqlStatus(object):
         for line in results:
             l='%s %s\n' % (line[0],line[1])
             f.write(l)
-    
+    def get_mysql_status(self):
+	results=self.getstatus()
+        for line in results:
+	    if line[0] == self._action :
+	        print line[1]
+    def get_slave_delay(self):
+	result = self.GetSlave_status()
+	if result == 'Null':
+	    print 5
+	else:
+	    print result['Seconds_Behind_Master']
+    def get_slave_running_status(self):
+        result = self.GetSlave_status()
+        if result == 'Null':
+            print 5 
+        else:
+	    list = ['%s' % result['Slave_IO_Running']  ,'%s' % result['Slave_SQL_Running']]
+	    count = list.count('Yes')
+	    print count
+
 if __name__ == '__main__' :
     port=sys.argv[1]
     action=sys.argv[2]
-    filename='/etc/zabbix/script/log/old_status.txt_%s_%s' % (port,action)
+    root_path = os.path.dirname(__file__)
+    filename='%s/log/old_status.txt_%s_%s' % (root_path,port,action)
     c=GetMysqlStatus(port,action,filename)
-    c.get_mysql_qps()
+    st=['Com_update','Com_select','Com_insert','Com_delete','Com_commit','Com_rollback']
+    if action in st:
+    	c.get_mysql_qps()
+    elif action in ('Threads_connected','Uptime'):
+	c.get_mysql_status()	
+    elif action == 'Behind_Master':
+	c.get_slave_delay()
+    elif action == 'Slave_running':
+	c.get_slave_running_status()
