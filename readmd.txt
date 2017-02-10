@@ -1,0 +1,9 @@
+# mysql 监控 
+git clone git@vcs.51talk.com:mazhenjie/monitor-zabbix.git
+cd monitor-zabbix
+mv script /usr/local/zabbix 
+chown zabbix.zabbix /usr/local/zabbix/scipt/*
+chmod 777 /usr/local/zabbix/script/*
+
+echo "UserParameter=mysql.discovery[*],/usr/local/zabbix/script/mysql/zabbix_discovery_mysql.sh  $1“ >> /usr/local/zabbix/zabbix_agentd.conf
+echo  "UserParameter=mysql_stats[*],/usr/local/zabbix/script/mysql/mysql_status.py $1 $2"  >>  /usr/local/zabbix/zabbix_agentd.conf
