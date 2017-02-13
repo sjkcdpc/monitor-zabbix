@@ -1,9 +1,16 @@
-# mysql 监控 
-git clone git@vcs.51talk.com:mazhenjie/monitor-zabbix.git
+
+git clone https://github.com/xiaomabetter/moniter-zabbix
 cd monitor-zabbix
 mv script /usr/local/zabbix 
+#更改目录、脚本权限
 chown zabbix.zabbix /usr/local/zabbix/scipt/*
-chmod 777 /usr/local/zabbix/script/*
+chmod 777 /usr/local/zabbix/script/  -R
+#修改客户端配置文件
 
-echo "UserParameter=mysql.discovery[*],/usr/local/zabbix/script/mysql/zabbix_discovery_mysql.sh  $1“ >> /usr/local/zabbix/zabbix_agentd.conf
+# mysql 监控 
+echo "UserParameter=mysql.discovery[*],/usr/local/zabbix/script/mysql/zabbix_discovery_mysql.sh  $1" >> /usr/local/zabbix/zabbix_agentd.conf
 echo  "UserParameter=mysql_stats[*],/usr/local/zabbix/script/mysql/mysql_status.py $1 $2"  >>  /usr/local/zabbix/zabbix_agentd.conf
+
+# redis 监控 
+echo "UserParameter=redis.discovery[*],/usr/local/zabbix/script/script/zabbix_discovery_redis.sh  $1" >> /usr/local/zabbix/zabbix_agentd.conf
+echo  "UserParameter=redis_stats[*],/usr/local/zabbix/script/redis/redis_stat_info.py $1 $2 $3"  >>  /usr/local/zabbix/zabbix_agentd.conf
