@@ -1,4 +1,5 @@
 
+yum install MySQL-python.x86_64 -y   连接Mysql库
 git clone https://github.com/xiaomabetter/monitor-zabbix
 cd monitor-zabbix
 mv script /usr/local/zabbix 
