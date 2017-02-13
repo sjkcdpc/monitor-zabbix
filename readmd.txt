@@ -1,5 +1,5 @@
 
-git clone https://github.com/xiaomabetter/moniter-zabbix
+git clone https://github.com/xiaomabetter/monitor-zabbix
 cd monitor-zabbix
 mv script /usr/local/zabbix 
 #更改目录、脚本权限
