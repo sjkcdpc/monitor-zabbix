@@ -119,5 +119,4 @@ if __name__ == '__main__' :
 	c.get_slave_delay()
     elif action == 'Slave_running':
 	c.get_slave_running_status()
-[root@manager_252 mysql]# 
 
